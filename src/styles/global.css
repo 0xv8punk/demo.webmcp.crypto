@@ -1,0 +1,284 @@
+:root {
+  --bg: #000;
+  --yellow: #ffd400;
+  --yellow-hover: #ffdf3a;
+  --ink: #0a0a0a;
+  --ash: #c2ccd2;
+  --faint: #6b7278;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ash);
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rain-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  transition: opacity 1.5s ease;
+}
+
+.rain-canvas.is-stopped {
+  opacity: 0.45;
+}
+
+.sunbeams {
+  position: fixed;
+  top: -10%;
+  left: 50%;
+  width: 220vw;
+  height: 140vh;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 172, 82, 0.55), transparent 60%),
+    repeating-conic-gradient(
+      from 0deg at 50% 0%,
+      rgba(255, 188, 100, 0.36) 0deg 4deg,
+      rgba(255, 188, 100, 0) 4deg 14deg
+    );
+  filter: blur(18px);
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+.sunbeams.is-visible {
+  opacity: 1;
+  animation: sunbeams-breathe 6s ease-in-out infinite;
+}
+
+@keyframes sunbeams-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sunbeams.is-visible {
+    animation: none;
+  }
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.claim-message {
+  min-height: 1.4em;
+  max-width: 340px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+  color: var(--ash);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.claim-message.is-visible {
+  opacity: 1;
+}
+
+.claim-message.is-error {
+  color: #e08a68;
+}
+
+.claim-button {
+  width: 320px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--yellow);
+  border: none;
+  padding: 22px 16px;
+  cursor: pointer;
+  image-rendering: pixelated;
+  box-shadow:
+    4px 0 0 0 var(--ink),
+    -4px 0 0 0 var(--ink),
+    0 4px 0 0 var(--ink),
+    0 -4px 0 0 var(--ink);
+  animation: pulse-yellow 1.5s ease-in-out infinite;
+  transition: transform 0.1s ease, background 0.15s ease, opacity 0.6s ease;
+}
+
+.claim-button:hover:not(:disabled) {
+  background: var(--yellow-hover);
+}
+
+.claim-button:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+.claim-button:disabled {
+  cursor: default;
+  animation: pulse-dim 1.5s ease-in-out infinite;
+  background: #3a3d1f;
+  color: var(--faint);
+}
+
+@keyframes pulse-yellow {
+  0%,
+  100% {
+    box-shadow:
+      4px 0 0 0 var(--ink),
+      -4px 0 0 0 var(--ink),
+      0 4px 0 0 var(--ink),
+      0 -4px 0 0 var(--ink),
+      0 0 0 0 rgba(255, 212, 0, 0.55);
+  }
+  55% {
+    box-shadow:
+      4px 0 0 0 var(--ink),
+      -4px 0 0 0 var(--ink),
+      0 4px 0 0 var(--ink),
+      0 -4px 0 0 var(--ink),
+      0 0 0 14px rgba(255, 212, 0, 0);
+  }
+}
+
+@keyframes pulse-dim {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .claim-button,
+  .claim-button:disabled {
+    animation: none;
+  }
+}
+
+.snackbar {
+  position: fixed;
+  left: 50%;
+  z-index: 2147483647; /* Privy's own modal portal uses z-index: 999999 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  padding: 10px 16px;
+  border: 2px solid var(--ink);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.snackbar-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--yellow);
+  font-size: 11px;
+}
+
+.snackbar--bottom {
+  bottom: 22px;
+  white-space: nowrap;
+  transform: translate(-50%, 130%);
+}
+
+.snackbar--bottom.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.snackbar--center {
+  top: 50%;
+  max-width: 300px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.snackbar--center.is-visible {
+  opacity: 1;
+  animation: snackbar-float 2.6s ease-in-out infinite;
+}
+
+@keyframes snackbar-float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, calc(-50% - 6px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snackbar {
+    transition: opacity 0.4s ease;
+  }
+
+  .snackbar--bottom {
+    transform: translate(-50%, 0);
+  }
+
+  .snackbar--center,
+  .snackbar--center.is-visible {
+    animation: none;
+    transform: translate(-50%, -50%);
+  }
+}
